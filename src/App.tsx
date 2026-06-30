@@ -1,16 +1,21 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 type User = {
   id: number;
   name: string;
-  email: string;
 };
 
 function App() {
+  const [page, setPage] = useState(1);
+
   const { data, isLoading, error } = useQuery<User[]>({
-    queryKey: ["users"],
+    queryKey: ["users", page],
+
     queryFn: async () => {
-      const res = await fetch("https://jsonplaceholder.typicode.com/users");
+      const res = await fetch(
+        `https://jsonplaceholder.typicode.com/users?_page=${page}&_limit=3`
+      );
 
       return res.json();
     },
@@ -22,12 +27,27 @@ function App() {
 
   return (
     <div>
+      <h1>Page {page}</h1>
+
       {data?.map((user) => (
         <div key={user.id}>
           <h3>{user.name}</h3>
-          <p>{user.email}</p>
         </div>
       ))}
+
+      <button
+        disabled={page === 1}
+        onClick={() => setPage(page - 1)}
+      >
+        Prev
+      </button>
+
+      <button
+        onClick={() => setPage(page + 1)}
+      >
+        Next
+      </button>
+
     </div>
   );
 }
